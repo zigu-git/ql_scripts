@@ -17,7 +17,7 @@
 # 🐉 ql_scripts - 自写自用脚本集
 
 <div style="text-align: center;">
-  <img src="./static/ql.png" alt="QingLong" width="150" />
+  <img src="./static/ql.jpg" alt="QingLong" width="150" />
 </div>
 
 
@@ -54,6 +54,9 @@ docker run -d -p 7777:7777 --restart=always --name ddddocr xzxxn777/ddddocr:late
 部署完成后替换脚本中的**OCR_SERVICE**即可
 例如你部署在本地127.0.0.1的7777端口，那么你需要替换为
 `http://127.0.0.1:7777/classification`
+
+## 自用机场
+[主打 原生IP 双ISP 低风控 家宽 高质量节点(非DNS解锁技术)支持按量付费](https://1ck.org/register?invcode=444c526a)
 
 
 ---
