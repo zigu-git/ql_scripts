@@ -137,16 +137,19 @@ def lottery(token, data):
     }
     resp = requests.post(url, headers=headers, json={})
     if resp.status_code == 200:
-        #print(resp.json())
-        code = resp.json().get("code")
-        msg = resp.json().get("msg")
-        name = data['data']['name']
+        result = resp.json()
+        code = result.get("code")
+        msg = result.get("msg")
+        name = result.get("data", {}).get("name")
         if code == 1:
-            print(f"😋抽奖{msg}，奖品信息：{name}")
+            if name:
+                print(f"😋抽奖{msg}，奖品信息：{name}")
+            else:
+                print("🥱抽奖成功，但结果为空")
         else:
             print(msg)
     else:
-        print("😖抽奖发生错误,错误码：", resp.status_code)
+        print("😖抽奖发生错误, 错误码：", resp.status_code)
 
 if __name__ == "__main__":
     token = load_token()
