@@ -9,14 +9,14 @@ from io import BytesIO
 import base64
 import time
 import random
-
+import os
 #所需依赖 requests selenium pillow
 
 
 # 配置
-USERNAME = "账号"
-PASSWORD = "密码"
-OCR_SERVICE = "替换为自部署的OCR服务地址"
+USERNAME = os.getenv("sjs_username")
+PASSWORD = os.getenv("sjs_password")
+OCR_SERVICE = os.getenv("ocr_service") #替换为自部署的OCR服务地址
 main_url = "https://xsijishe.com"
 TIMEOUT = 10
 
@@ -162,12 +162,12 @@ def login_by_requests():
         return True
     else:
         print(f"❌ [失败] 登录失败：{r.text[:100]}...")  # 截断打印防止过长
+        send("司机社签到", "❌ [失败] 登录失败")
         return False
 
 def do_sign_in(driver):
     """使用 Selenium 执行签到操作"""
     global checkIn_status
-
     try:
         print("⏳ 正在执行签到操作...")
 
@@ -226,10 +226,12 @@ def do_sign_in(driver):
 
         checkIn_status = 2
         print("❌ 签到失败")
+        send("司机社签到", "❌ 签到操作失败")
         return False
 
     except Exception as e:
         print(f"❌ 签到过程中出现异常")
+        send("司机社签到", "❌ 签到过程中出现异常")
         checkIn_status = 2
         return False
 
@@ -348,8 +350,21 @@ def printUserInfo(driver):
         except:
             pass
         return False
-
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 if __name__ == "__main__":
+    load_send()
     if login_by_requests():
         print("✔️ 登录成功，准备启动浏览器执行签到和信息获取")
         chrome_options = Options()
@@ -364,9 +379,9 @@ if __name__ == "__main__":
                 print("✔️ 签到操作完成")
             else:
                 print("❌ 签到操作失败")
-
             printUserInfo(driver)
         finally:
             driver.quit()
     else:
         print("❌ 登录失败，脚本结束")
+        send("司机社签到", "❌ 登录失败，脚本结束")

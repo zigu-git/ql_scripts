@@ -1,12 +1,12 @@
 import requests
 import time
-
+import os
 # 在https://www.starrycoding.com/网站登陆后按“F12”在Application——>LocalStorage中找到starryCoding.com的Token
 # 将其复制到下面的TOKEN变量中
 
 # ⭐️ 配置
 BASE_URL = "https://api.starrycoding.com"
-TOKEN = "替换为你的实际 Token"  # <- 替换为你的实际 Token
+TOKEN = os.getenv("starryCoding_token") # <- 替换为你的实际 Token
 HEADERS = {
     "Content-Type": "application/json",
     "Token": TOKEN,
@@ -34,6 +34,7 @@ def sign_in():
         print("⚠️ 已签到或请求异常：", response.json().get("msg", "未知错误"))
     else:
         print("❌ 签到失败，状态码：", response.status_code)
+        send("星码签到", "❌ 签到失败")
         print(response.text)
     time.sleep(1)
 
@@ -57,9 +58,23 @@ def get_user_info():
         print("❌ 获取用户信息失败！")
         print(response.text)
 
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 
 if __name__ == "__main__":
     print("🌟 StarryCoding 签到脚本开始 🌟\n")
+    load_send()
     sign_in()
     get_user_info()
     print("✨ 脚本执行完成。")
