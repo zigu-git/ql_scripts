@@ -2,8 +2,8 @@ import requests
 import os
 
 # 配置
-USERNAME = "账号"
-PASSWORD = "密码"
+USERNAME = os.getenv("vip9c_username")
+PASSWORD = os.getenv("vip9c_password")
 
 LOGIN_URL = "https://vipc9.com/wp-admin/admin-ajax.php"
 SIGN_URL = LOGIN_URL
@@ -82,9 +82,24 @@ def sign_in(cookies_dict):
         return False
     else:
         print(f"⚠️ 签到失败：{result.get('msg')}")
+        send("vip9c签到", "⚠️ 签到失败")
         return True  # 不是因为未登录
 
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 def main():
+    load_send()
     cookie_str = load_cookie()
     cookies_dict = cookie_str_to_dict(cookie_str)
 

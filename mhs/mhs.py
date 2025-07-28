@@ -8,8 +8,8 @@ from Cryptodome.Hash import SHA256
 #第一次使用前先抓https://bxo30.xyz/api/user/qd请求中的encryptedData和iv参数将其填到68和69行对应位置
 
 # 配置
-UserName = "账号"
-Password = "密码"
+UserName = os.getenv("mhs_username")
+Password = os.getenv("mhs_password")
 TOKEN_FILE = "./mhs.txt"
 
 def save_token(token):
@@ -66,8 +66,8 @@ def qd(token):
         "Referer": "https://bxo30.xyz/"
     }
     json_data = {
-        "encryptedData": "填encryptedData",
-        "iv": "填iv"
+        "encryptedData": os.getenv("mhs_encryptedData"),
+        "iv": os.getenv("mhs_iv")
     }
     response = requests.post(url, headers=headers, json=json_data)
     if response.status_code == 200:
@@ -150,9 +150,22 @@ def lottery(token, data):
             print(msg)
     else:
         print("😖抽奖发生错误, 错误码：", resp.status_code)
-
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 if __name__ == "__main__":
     token = load_token()
+    load_send()
     if not token:
         print("🤖没有找到有效token，准备登录获取新token")
         token = login()
@@ -161,6 +174,7 @@ if __name__ == "__main__":
         success = qd(token)
         if not success:
             print("😖签到失败，尝试重新登录获取token")
+            send("米哈社签到", "😖签到失败，尝试重新登录获取token")
             token = login()
             if token:
                 qd(token)

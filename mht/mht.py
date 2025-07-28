@@ -1,6 +1,6 @@
 import httpx
 import json
-
+import os
 #需要安装httpx[http2]依赖
 
 #在棉花糖vip站点https://vip.bdziyi.com/登录后按F12在Application——>Cookies中找到vip.bdziyi.com的PHPSESSID和wordpress_logged_in_替换为对应的key
@@ -8,10 +8,22 @@ import json
 
 # 🍪 设置 Cookie（注意：请确保此 Cookie 仍然有效）
 cookies = {
-    "wordpress_logged_in_替换为对应的key": "替换为对应的值",
-    "PHPSESSID": "替换为对应的值"
+    os.getenv("mht_key"): os.getenv("mht_value"),# wordpress_logged_in_替换为对应的key、替换为对应的值
+    "PHPSESSID": os.getenv("mht_phpsessid_value")# 替换为对应的值
 }
-
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 # 🔧 请求头
 headers = {
     "Host": "vip.bdziyi.com",
@@ -39,6 +51,7 @@ with httpx.Client(http2=True, cookies=cookies, headers=headers) as client:
 
 # 📊 处理响应
 if response.status_code == 200:
+    load_send()
     try:
         result = response.json()
         if not result.get("error"):
@@ -49,6 +62,7 @@ if response.status_code == 200:
             print(f"🕒 时间：{result['data']['time']}")
         else:
             print("❌ 签到失败：", result.get("msg", "未知错误"))
+            send("棉花糖签到", "❌ 签到失败")
     except json.JSONDecodeError:
         print("❌ 无法解析返回结果：", response.text)
 else:

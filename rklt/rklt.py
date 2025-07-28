@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 
 
 # 配置
-UserName = "账号"
-Password = "密码"
+UserName = os.getenv("rklt_username")
+Password = os.getenv("rklt_password")
 COOKIE_FILE = "./rklt_cookie.pkl"
 
 def save_cookies(session, filename=COOKIE_FILE):
@@ -106,9 +106,11 @@ def sign_in(session):
                 return False
         else:
             print(f"❌ 签到失败，HTTP 状态码: {response.status_code}")
+            send("瑞客论坛签到", "❌ 签到失败")
             return False
     except Exception as e:
         print(f"🔥 签到请求异常：{e}")
+        send("瑞客论坛签到", "🔥 签到请求异常")
         return False
 
 def get_credit(session: requests.Session):
@@ -142,8 +144,21 @@ def get_credit(session: requests.Session):
             print(f"❌ 请求失败，HTTP状态码: {response.status_code}")
     except Exception as e:
         print(f"🔥 获取积分出错：{e}")
-
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 if __name__ == "__main__":
+    load_send()
     session = requests.Session()
 
     print("📦 尝试使用已保存 Cookie 进行签到...")

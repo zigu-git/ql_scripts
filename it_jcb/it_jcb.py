@@ -13,19 +13,20 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
+import os
 #需要安装的依赖 requests beautifulsoup4 pillow numpy selenium
 
 
 # --- 配置 ---
-USERNAME = "账号"
-PASSWORD = "密码"
+USERNAME = os.getenv("it_jcb_username")
+PASSWORD = os.getenv("it_jcb_password")
 
 
 LOGIN_PAGE_URL = "https://www.itjc8.com/member.php?mod=logging&action=login"
 LOGIN_POST_URL = "https://www.itjc8.com/member.php?mod=logging&action=login&loginsubmit=yes&inajax=1"
 SIGN_URL = "https://www.itjc8.com/plugin.php?id=dsu_paulsign:sign&operation=qiandao&infloat=1&sign_as=1&inajax=1"
 
-OCR_SERVICE = "替换为自部署的OCR服务地址"  # 你的OCR接口地址
+OCR_SERVICE = os.getenv("ocr_service") #替换为自部署的OCR服务地址
 COOKIE_FILE = "./itlt.txt"
 
 qdxq_list=["kx","ng","ym","wl","nu","ch","fd","yl","shuai"]
@@ -171,8 +172,22 @@ def load_cookies(filepath):
         print(f"加载Cookie失败: {e}")
         return False
 
+def load_send():
+    global send
+    cur_path = os.path.abspath(os.path.dirname(__file__))
+    notify_file_path = os.path.join(cur_path, "..", "notify.py")
+    if os.path.exists(notify_file_path):
+        try:
+            from notify import send
+        except:
+            send = False
+            print("加载通知服务失败~")
+    else:
+        send = False
+        print("加载通知服务失败~")
 
 def login(username, password):
+    load_send()
     for attempt in range(1, MAX_RETRY + 1):
         print(f"\n🔐 第{attempt}次尝试登录...")
         html = get_page_source_with_selenium(LOGIN_PAGE_URL)
@@ -280,6 +295,7 @@ def sign_in():
             return True
         elif "心情不正确" in msg:
             print(f"⚠️ 签到失败: {msg}")
+            send("ITJC8签到", f"❌ 签到失败: {msg}")
             return False
         elif "未登录" in msg or "登录" in msg:
             print("❌ Cookie 失效或未登录，需要重新登录")
