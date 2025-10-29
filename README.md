@@ -62,7 +62,7 @@ docker run -d -p 7777:7777 --restart=always --name ddddocr xzxxn777/ddddocr:late
 
 
 ---
-## 🐶[狗东上车](https://jd.clearligh.top/)
-上车网址：[jd.clearligh.top](https://jd.clearligh.top/)  
+## 🐶[狗东上车](https://jd.112378.xyz)
+上车网址：[jd.112378.xyz](https://jd.112378.xyz)  
 上车Vx机器人：Czb112378121  
 上车TG机器人：[@zigu_jd](https://t.me/zigu_jd)
