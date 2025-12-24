@@ -17,7 +17,7 @@ import os
 USERNAME = os.getenv("sjs_username")
 PASSWORD = os.getenv("sjs_password")
 OCR_SERVICE = os.getenv("ocr_service") #替换为自部署的OCR服务地址
-main_url = "https://xsijishe.com"
+main_url = "https://xsijishe.net"
 TIMEOUT = 10
 
 # 登录用到的参数
